@@ -1,0 +1,12 @@
+name: web2pdf
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./render-config.json:/app/render-config.json
+    security_opt:
+      - seccomp=./chrome.json

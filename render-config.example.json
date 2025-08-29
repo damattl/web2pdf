@@ -1,0 +1,10 @@
+{
+  "RENDERER_NAME_1": {
+    "url": "RENDERER_URL",
+    "keys": []
+  },
+  "RENDERER_NAME_2": {
+    "url": "RENDERER_URL",
+    "keys": null
+  }
+}
