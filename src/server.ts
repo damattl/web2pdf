@@ -28,7 +28,7 @@ app.use('/api/health', (_req, res) => {
     status: 'ok',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-    renderConfig: renderConfig,
+    renderConfig: config.NODE_ENV === 'development' ? renderConfig : 'redacted',
   });
 });
 
