@@ -7,12 +7,14 @@ dotenv.config();
 interface Config {
   PORT: number;
   NODE_ENV: string;
+  CORS_ORIGINS: string[];
   RENDER_CONFIG_PATH: string;
 }
 
 const config: Config = {
   PORT: parseInt(process.env.PORT || '3000'),
   NODE_ENV: process.env.NODE_ENV || 'development',
+  CORS_ORIGINS: process.env.CORS_ORIGINS?.split(',') || ['*'],
   RENDER_CONFIG_PATH: process.env.RENDER_CONFIG_PATH || './render-config.json',
 };
 

@@ -17,7 +17,11 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: config.CORS_ORIGINS,
+  }),
+);
 app.use(compression());
 app.use(express.json());
 
