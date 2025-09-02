@@ -1,7 +1,8 @@
-import puppeteer from 'puppeteer';
+import { BrowserContext } from 'puppeteer';
 import { config, renderConfig } from '@/config/config.js';
 
 import { z } from 'zod';
+import { BrowserSingleton } from './browser.js';
 
 export const PageConfig = z.object({
   margin: z.object({
@@ -26,41 +27,92 @@ export const PageRequest = z.object({
   config: PageConfig.default(DEFAULT_PAGE_CONFIG),
 });
 
-export async function renderPDF(
-  request: z.Infer<typeof PageRequest>,
-  renderer: string,
-): Promise<Uint8Array<ArrayBufferLike>> {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+export class RenderError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RenderError';
+  }
+}
 
-  const cfg = request.config;
+export class PDFRenderer {
+  context: BrowserContext | null = null;
+  browser: BrowserSingleton;
 
-  const json = JSON.stringify(request.data);
-  const b64 = Buffer.from(json, 'utf8').toString('base64');
-
-  const renderUrl = renderConfig[renderer]?.url;
-  if (renderUrl == null) {
-    throw new Error(`Renderer ${renderer} not found`);
+  constructor(browser: BrowserSingleton) {
+    this.browser = browser;
   }
 
-  const url = `${renderUrl}?data=${b64}&renderer=${renderer}`;
-  console.log(url);
+  public async abort() {
+    console.log('PDFRenderer.abort() called');
+    await this.context?.close();
+    this.context = null;
+  }
+  public async render(
+    request: z.Infer<typeof PageRequest>,
+    renderer: string,
+  ): Promise<Uint8Array<ArrayBufferLike>> {
+    this.context = await this.browser.createContext();
+    const page = await this.context.newPage();
 
-  await page.goto(url, {
-    waitUntil: 'networkidle2',
-  });
-  await page.emulateMediaType('screen');
-  const pdf = await page.pdf({
-    format: 'A4',
-    printBackground: true,
-    margin: {
-      top: cfg.margin.top,
-      bottom: cfg.margin.bottom,
-      left: cfg.margin.left,
-      right: cfg.margin.right,
-    },
-  });
-  await browser.close();
+    const cfg = request.config;
 
-  return pdf;
+    const json = JSON.stringify(request.data);
+    const b64 = Buffer.from(json, 'utf8').toString('base64');
+
+    const renderUrl = renderConfig[renderer]?.url;
+    if (renderUrl == null) {
+      throw new Error(`Renderer ${renderer} not found`);
+    }
+
+    console.log('Data:', json);
+    const url = `${renderUrl}?data=${b64}&renderer=${renderer}`;
+    console.log(url);
+
+    try {
+      const error = Promise.race([
+        new Promise((res, rej) =>
+          page.once('error', (error) => {
+            console.error(error);
+            res(new RenderError(error.message));
+          }),
+        ),
+        new Promise((res, rej) =>
+          page.once('pageerror', (error) => {
+            console.error(error);
+            res(new RenderError(error.message));
+          }),
+        ),
+      ]);
+
+      await page.goto(url, {
+        waitUntil: 'networkidle2',
+      });
+
+      await page.emulateMediaType('screen');
+
+      await Promise.race([
+        page.waitForSelector('#ready'),
+        error.then((error) => Promise.reject(error)),
+      ]);
+
+      const pdf = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: cfg.margin.top,
+          bottom: cfg.margin.bottom,
+          left: cfg.margin.left,
+          right: cfg.margin.right,
+        },
+      });
+      await this.context.close().catch(() => {});
+
+      return pdf;
+    } catch (error) {
+      await this.context.close().catch(() => {});
+      throw error;
+    } finally {
+      this.context = null;
+    }
+  }
 }

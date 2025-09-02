@@ -9,6 +9,7 @@ interface Config {
   NODE_ENV: string;
   CORS_ORIGINS: string[];
   RENDER_CONFIG_PATH: string;
+  MAX_PARALLEL_CONTEXTS: number;
 }
 
 const config: Config = {
@@ -16,6 +17,7 @@ const config: Config = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   CORS_ORIGINS: process.env.CORS_ORIGINS?.split(',') || ['*'],
   RENDER_CONFIG_PATH: process.env.RENDER_CONFIG_PATH || './render-config.json',
+  MAX_PARALLEL_CONTEXTS: parseInt(process.env.MAX_PARALLEL_CONTEXTS || '10'),
 };
 
 // const __dirname = path.dirname(fileURLToPath(import.meta.url));
