@@ -4,10 +4,11 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN yarn install --immutable --immutable-cache --frozen-lockfile
+RUN yarn install --immutable --immutable-cache --frozen-lockfile --network-concurrency 1
 
 COPY tsconfig.json .prettierrc .eslintrc.js .yarnrc.yml ./
 COPY src ./src
+ENV ESBUILD_WORKERS=1
 RUN yarn build
 
 # Runtime Stage
@@ -32,7 +33,7 @@ RUN addgroup -S pptruser && adduser -S -G pptruser pptruser \
 
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --immutable --immutable-cache --mode=skip-build --frozen-lockfile
+RUN yarn install --immutable --immutable-cache --mode=skip-build --frozen-lockfile --network-concurrency 1
 
 COPY --from=build /app/dist ./dist
 
