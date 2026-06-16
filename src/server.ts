@@ -50,6 +50,10 @@ app.post('/api/render/:renderer', requireRenderApiKey, async (req, res) => {
     return res.status(400).json({ error: 'Missing renderer parameter' });
   }
 
+  if (typeof rendererType !== 'string') {
+    return res.status(400).json({ error: 'Invalid renderer parameter' });
+  }
+
   const json = req.body;
 
   const pageRequest = PageRequest.safeParse(json['page']);

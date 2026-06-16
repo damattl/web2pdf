@@ -37,6 +37,10 @@ export const requireRenderApiKey: RequestHandler = (
   if (!renderer)
     return res.status(400).json({ error: 'Missing renderer parameter' });
 
+  if (typeof renderer !== 'string') {
+    return res.status(400).json({ error: 'Invalid renderer parameter' });
+  }
+
   const cfg = renderConfig[renderer];
   if (!cfg)
     return res

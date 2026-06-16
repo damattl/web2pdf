@@ -4,7 +4,7 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN yarn install --immutable --immutable-cache
+RUN yarn install --immutable --immutable-cache --frozen-lockfile
 
 COPY tsconfig.json .prettierrc .eslintrc.js .yarnrc.yml ./
 COPY src ./src
@@ -32,7 +32,7 @@ RUN addgroup -S pptruser && adduser -S -G pptruser pptruser \
 
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --immutable --immutable-cache --mode=skip-build
+RUN yarn install --immutable --immutable-cache --mode=skip-build --frozen-lockfile
 
 COPY --from=build /app/dist ./dist
 
