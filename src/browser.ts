@@ -15,7 +15,9 @@ export class BrowserSingleton {
     if (!this.browser) {
       this.browser = puppeteer.launch({
         headless: true, // or 'new' on newer versions
+        defaultViewport: null,
       });
+      this.browser.then(console.log);
     }
     return this.browser;
   }

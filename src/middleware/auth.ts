@@ -1,7 +1,6 @@
-import { config, renderConfig } from '@/config/config.js';
+import { renderConfig } from '@/config/config.js';
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 
 // Constant-time equality (prevents trivial timing leaks)
 function safeEqual(
@@ -44,7 +43,7 @@ export const requireRenderApiKey: RequestHandler = (
       .status(500)
       .json({ error: `renderer ${renderer} not configured` });
 
-  if (cfg.keys === null) {
+  if (cfg.keys === null || cfg.keys.length == 0) {
     return next();
   }
 

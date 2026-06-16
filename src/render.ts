@@ -4,6 +4,10 @@ import { config, renderConfig } from '@/config/config.js';
 import { z } from 'zod';
 import { BrowserSingleton } from './browser.js';
 
+function timeout(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const PageConfig = z.object({
   margin: z.object({
     top: z.string().default('1cm'),
@@ -54,6 +58,8 @@ export class PDFRenderer {
     this.context = await this.browser.createContext();
     const page = await this.context.newPage();
 
+    await page.emulateMediaType('print');
+
     const cfg = request.config;
 
     const json = JSON.stringify(request.data);
@@ -64,22 +70,25 @@ export class PDFRenderer {
       throw new Error(`Renderer ${renderer} not found`);
     }
 
-    console.log('Data:', json);
     const url = `${renderUrl}?data=${b64}&renderer=${renderer}`;
-    console.log(url);
+    console.debug(url);
 
     try {
       const error = Promise.race([
         new Promise((res, rej) =>
           page.once('error', (error) => {
             console.error(error);
-            res(new RenderError(error.message));
+            if (error instanceof Error) {
+              res(new RenderError(error.message));
+            }
           }),
         ),
         new Promise((res, rej) =>
           page.once('pageerror', (error) => {
             console.error(error);
-            res(new RenderError(error.message));
+            if (error instanceof Error) {
+              res(new RenderError(error.message));
+            }
           }),
         ),
       ]);
@@ -88,12 +97,14 @@ export class PDFRenderer {
         waitUntil: 'networkidle2',
       });
 
-      await page.emulateMediaType('screen');
-
       await Promise.race([
         page.waitForSelector('#ready'),
         error.then((error) => Promise.reject(error)),
       ]);
+
+      console.log(cfg.margin);
+      await timeout(1000);
+      console.log('waited');
 
       const pdf = await page.pdf({
         format: 'A4',
@@ -104,12 +115,13 @@ export class PDFRenderer {
           left: cfg.margin.left,
           right: cfg.margin.right,
         },
+        scale: 1,
       });
-      await this.context.close().catch(() => {});
+      await this.context.close().catch(console.warn);
 
       return pdf;
     } catch (error) {
-      await this.context.close().catch(() => {});
+      await this.context.close().catch(console.warn);
       throw error;
     } finally {
       this.context = null;

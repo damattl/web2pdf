@@ -11,7 +11,7 @@ COPY src ./src
 RUN yarn build
 
 # Runtime Stage
-FROM alpine
+FROM alpine:3.20
 
 RUN apk add --no-cache \
     chromium \
