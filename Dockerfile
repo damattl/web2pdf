@@ -6,12 +6,12 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --immutable --immutable-cache
 
-COPY tsconfig.json ./
+COPY tsconfig.json .prettierrc .eslintrc.js .yarnrc.yml ./
 COPY src ./src
 RUN yarn build
 
 # Runtime Stage
-FROM alpine:3.20
+FROM alpine
 
 RUN apk add --no-cache \
     chromium \
