@@ -2,11 +2,9 @@
   "defaultAction": "SCMP_ACT_ERRNO",
   "syscalls": [
     {
-        "names": [
-          "statx"
-        ],
+        "name": "statx"
         "action": "SCMP_ACT_ALLOW",
-        "args": [],
+        "args": null,
     },
     {
       "name": "accept",
