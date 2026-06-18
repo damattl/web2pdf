@@ -67,6 +67,7 @@ export class PDFRenderer {
 
     const renderUrl = renderConfig[renderer]?.url;
     if (renderUrl == null) {
+      console.error('Renderer not found');
       throw new Error(`Renderer ${renderer} not found`);
     }
 
@@ -92,6 +93,8 @@ export class PDFRenderer {
           }),
         ),
       ]);
+
+      console.log('Loading page...');
 
       await page.goto(url, {
         waitUntil: 'networkidle2',
