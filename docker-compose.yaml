@@ -8,5 +8,5 @@ services:
       - NODE_ENV=production
     volumes:
       - ./render-config.json:/app/render-config.json
-    security_opt:
-      - seccomp=./chrome.json
+  #   security_opt:
+  #     - seccomp=./chrome.json

@@ -1,10 +1,5 @@
 import express from 'express';
-import {
-  DEFAULT_PAGE_CONFIG,
-  PageConfig,
-  PageRequest,
-  PDFRenderer,
-} from '@/render.js';
+import { DEFAULT_PAGE_CONFIG, PageRequest, PDFRenderer } from '@/render.js';
 import { config, renderConfig } from '@/config/config.js';
 import helmet from 'helmet';
 import cors from 'cors';

@@ -16,6 +16,11 @@ export class BrowserSingleton {
       this.browser = puppeteer.launch({
         headless: true, // or 'new' on newer versions
         defaultViewport: null,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+        ],
       });
       this.browser.then(console.log);
     }
