@@ -96,15 +96,17 @@ export class PDFRenderer {
       await page.goto(url, {
         waitUntil: 'networkidle2',
       });
+      console.log('Page loaded');
 
       await Promise.race([
         page.waitForSelector('#ready'),
         error.then((error) => Promise.reject(error)),
       ]);
 
-      console.log(cfg.margin);
+      console.log('Page rendered');
+
       await timeout(1000);
-      console.log('waited');
+      console.log('Waited for 1 Second');
 
       const pdf = await page.pdf({
         format: 'A4',
