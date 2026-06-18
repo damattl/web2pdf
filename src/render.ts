@@ -96,9 +96,12 @@ export class PDFRenderer {
 
       console.log('Loading page...');
 
-      await page.goto(url, {
-        waitUntil: 'networkidle2',
-      });
+      await Promise.race([
+        page.goto(url, {
+          waitUntil: 'networkidle0',
+        }),
+        error.then((error) => Promise.reject(error)),
+      ]);
       console.log('Page loaded');
 
       await Promise.race([
