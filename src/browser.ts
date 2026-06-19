@@ -16,6 +16,7 @@ export class BrowserSingleton {
       this.browser = puppeteer.launch({
         headless: true, // or 'new' on newer versions
         defaultViewport: null,
+        dumpio: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',

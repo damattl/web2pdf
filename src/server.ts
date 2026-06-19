@@ -1,5 +1,5 @@
 import express from 'express';
-import { DEFAULT_PAGE_CONFIG, PageRequest, PDFRenderer } from '@/render.js';
+import { PageRequest, PDFRenderer } from '@/render.js';
 import { config, renderConfig } from '@/config/config.js';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -85,6 +85,9 @@ app.post('/api/render/:renderer', requireRenderApiKey, async (req, res) => {
     });
   }
 });
+
+const context = await browser.createContext();
+await context.close();
 
 app.listen(config.PORT, () => {
   console.log(`Server running on port ${config.PORT}`);
