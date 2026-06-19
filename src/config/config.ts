@@ -22,7 +22,11 @@ const config: Config = {
 
 // const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const renderConfig: Record<string, { url: string; keys: string[] | null }> =
-  JSON.parse(fs.readFileSync(path.join(config.RENDER_CONFIG_PATH), 'utf8'));
+const DEFAULT_TIMEZONE = 'Europe/Berlin';
 
-export { config, renderConfig };
+const renderConfig: Record<
+  string,
+  { url: string; keys: string[] | null; timezone: string | null }
+> = JSON.parse(fs.readFileSync(path.join(config.RENDER_CONFIG_PATH), 'utf8'));
+
+export { config, renderConfig, DEFAULT_TIMEZONE };

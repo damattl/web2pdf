@@ -1,5 +1,5 @@
 import { BrowserContext } from 'puppeteer';
-import { config, renderConfig } from '@/config/config.js';
+import { config, DEFAULT_TIMEZONE, renderConfig } from '@/config/config.js';
 import { z } from 'zod';
 import { BrowserSingleton } from './browser.js';
 
@@ -69,6 +69,11 @@ export class PDFRenderer {
 
     this.context = await this.browser.createContext();
     const page = await this.context.newPage();
+
+    const timezone = renderConfig[renderer]?.timezone ?? DEFAULT_TIMEZONE;
+    if (timezone) {
+      page.emulateTimezone(timezone);
+    }
 
     page.evaluateOnNewDocument((renderData) => {
       // @ts-ignore
